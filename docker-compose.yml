@@ -1,0 +1,41 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wowberg-api
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app/src
+        - action: rebuild
+          path: requirements.txt
+        - action: rebuild
+          path: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: development
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: wowberg
+      DB_USER: wowberg
+      DB_PASSWORD: wowberg
+    depends_on:
+      - db
+
+  db:
+    image: timescale/timescaledb:latest-pg16
+    container_name: wowberg-db
+    environment:
+      POSTGRES_DB: wowberg
+      POSTGRES_USER: wowberg
+      POSTGRES_PASSWORD: wowberg
+    ports:
+      - "5432:5432"
+    volumes:
+      - wowberg-db-data:/var/lib/postgresql/data
+
+volumes:
+  wowberg-db-data:
