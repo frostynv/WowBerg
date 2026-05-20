@@ -9,12 +9,18 @@ services:
         - action: sync
           path: ./src
           target: /app/src
+        - action: sync
+          path: ./.github
+          target: /app/.github
         - action: rebuild
           path: requirements.txt
         - action: rebuild
           path: Dockerfile
     ports:
       - "8000:8000"
+    volumes:
+      - ./src:/app/src
+      - ./.github:/app/.github
     environment:
       APP_ENV: development
       DB_HOST: db

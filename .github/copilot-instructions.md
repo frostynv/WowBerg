@@ -10,3 +10,7 @@
 - Prefer small, testable functions and clear module boundaries.
 - Add comments only where behavior is not obvious.
 - Keep examples practical and concise.
+
+## When to use other files
+- Use `.github/instructions/wowberg-architecture.instructions.md` for WowBerg
+	backend, Electron, and addon architecture guidance.

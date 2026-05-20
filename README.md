@@ -6,13 +6,15 @@ Bloomberg Terminal for World of Warcraft
 https://community.developer.battle.net/documentation/world-of-warcraft
 
 ## AI Context
-Copilot project instructions are in .github/copilot-instructions.md so chat responses can consistently use the WoW API documentation context.
+Copilot project instructions are in [.github/copilot-instructions.md](.github/copilot-instructions.md).
+Use [.github/instructions/wowberg-architecture.instructions.md](.github/instructions/wowberg-architecture.instructions.md)
+for WowBerg architecture guidance.
 
 ## Copilot Customization Structure
 - Always-on instructions: `.github/copilot-instructions.md`
 - Shared agent operating guide: `.github/AGENTS.md`
 - File-scoped instructions: `.github/instructions/*.instructions.md`
-- Reusable slash prompts: `.github/prompts/*.prompt.md`
+- Agent skills: `.github/skills/*/SKILL.md`
 - Specialist agents: `.github/agents/*.agent.md`
 - Runtime policy hooks: `.github/hooks/*.json`
 
