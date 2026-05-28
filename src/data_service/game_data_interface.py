@@ -21,7 +21,6 @@ class DataProviderInterface(ABC):
 
         Returns:
             bool: True if connected, False otherwise.
-
         """
         pass
 

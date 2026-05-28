@@ -1,11 +1,14 @@
+# Python artifacts
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
 .pytest_cache/
+
+# Local environment
 .venv/
+
+# Repository metadata not needed in the image
 .git/
 .github/
-frontend/
-scripts/

@@ -17,6 +17,12 @@
   "overrideCommand": true,
   "customizations": {
     "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.analysis.extraPaths": [
+          "/app/src"
+        ]
+      },
       "extensions": [
         "ms-python.python",
         "ms-python.vscode-pylance"

@@ -1,3 +1,21 @@
 {
-    "python-envs.defaultEnvManager": "ms-python.python:system"
+  "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/src"
+  ],
+  "python.terminal.activateEnvironment": true,
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": [
+          "string.quoted.multi.python",
+          "string.quoted.docstring.multi.python",
+          "string.quoted.docstring.python"
+        ],
+        "settings": {
+          "foreground": "#5C6368"
+        }
+      }
+    ]
+  }
 }
