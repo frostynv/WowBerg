@@ -1,6 +1,6 @@
 ---
 name: fullstack-coding
-description: Coding skill for the Fullstack Agent. Use when the task needs backend Python, Electron, or addon implementation guidance, including module boundaries, contract-first design, dependency flow, and testable code.
+description: Coding skill for the Fullstack Agent. Use when the task needs software design or implementation guidance, including module boundaries, contract-first design, dependency flow, and testable code.
 ---
 
 Use this skill for coding-focused tasks.

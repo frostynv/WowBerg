@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: wowberg-api
+    command: uvicorn api:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/src
     develop:
       watch:
         - action: sync
@@ -26,6 +27,21 @@ services:
       DB_PASSWORD: wowberg
     depends_on:
       - db
+
+  main:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wowberg-main
+    command: python -m main
+    develop:
+      watch:
+        - action: restart
+          path: ./src
+    volumes:
+      - ./src:/app/src
+    environment:
+      APP_ENV: development
 
   db:
     image: timescale/timescaledb:latest-pg16

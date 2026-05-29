@@ -1,34 +1,28 @@
+"""Main entrypoint for non-HTTP startup tasks."""
+
+import sys
 
 from data_service.blizzard_client import BlizzardOAuthClient
-from fastapi import FastAPI
-import uvicorn
-
-def create_app() -> FastAPI:
-    app = FastAPI(title="WowBerg API", version="0.1.0")
-
-    @app.get("/health")
-    async def health() -> dict[str, str]:
-        return {"status": "ok"}
-
-    return app
+from debug.debug import create_debug
 
 
-app = create_app()
+debug = create_debug([sys.stdout])
+
 
 def main() -> None:
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    """Run the Blizzard client startup flow."""
+    run_blizzard_client()
 
-    ## Test code
+
+def run_blizzard_client() -> None:
+    """Fetch and log the Blizzard OAuth token."""
+
+    debug.log("Starting Blizzard API client using bundled credentials", prefix="[DIV]")
+    
     blizzard_client = BlizzardOAuthClient()
     token = blizzard_client.fetch_token()
-    print("Fetched token:", token)
-
-
+    debug.log(f"Blizzard API returned token: {token}", prefix="[ATT]")
 
 
 if __name__ == "__main__":
     main()
-    
-
-
-

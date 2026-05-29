@@ -2,7 +2,6 @@
 description: "Coding and documentation agent for backend Python, Electron, and WoW addon work."
 name: "Fullstack Agent"
 tools: [read, edit, search, execute]
-model: "GPT-5.4 mini"
 argument-hint: "fullstack task"
 user-invocable: true
 ---

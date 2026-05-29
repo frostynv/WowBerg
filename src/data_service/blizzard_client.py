@@ -20,6 +20,10 @@ from typing import Optional, Dict, Any
 import requests
 from authlib.integrations.requests_client import OAuth2Session
 
+
+
+## Credientials for Blizzard API access
+# Note: Secret stuff :)
 # Default Blizzard application credentials used when callers do not supply overrides.
 DEFAULT_CLIENT_ID = "09c055d763e848a4a251dbd61ab0eefd"
 # Default Blizzard application secret used when callers do not supply overrides.
@@ -66,9 +70,9 @@ class BlizzardOAuthClient:
         self._token: Optional[Dict[str, Any]] = None
         self._expires_at: float = 0.0
 
-    def _token_url(self, region: str) -> str:
-        """Build the OAuth token endpoint for a region."""
-        return f"https://{region}.battle.net/oauth/token"
+    def _token_url(self) -> str:
+        """Build the OAuth token endpoint URL."""
+        return f"https://oauth.battle.net/token"
 
     def _api_base(self, region: str) -> str:
         """Build the Blizzard REST API base URL for a region."""
@@ -87,7 +91,7 @@ class BlizzardOAuthClient:
             BlizzardAuthError: If the token request fails.
         """
         region = region or self.region
-        token_url = self._token_url(region)
+        token_url = self._token_url()
 
         try:
             oauth = OAuth2Session(client_id=self.client_id, client_secret=self.client_secret)
