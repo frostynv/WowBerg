@@ -19,7 +19,6 @@ dependencies = [
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-py-modules = ["main", "api"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

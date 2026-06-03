@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from pathlib import __all__
 
 
 class DataProviderInterface(ABC):
@@ -31,7 +32,7 @@ class DataProviderInterface(ABC):
         """
 
     @abstractmethod
-    def set_config(self, config: dict[str, str]) -> bool:
+    def set_config(self, config: dict[str, object]) -> bool:
         """
         Set the configuration for the data provider.
 
@@ -39,3 +40,6 @@ class DataProviderInterface(ABC):
             config (dict): A dictionary containing configuration parameters.
         """
         pass 
+
+
+__all__ = ["DataProviderInterface"]

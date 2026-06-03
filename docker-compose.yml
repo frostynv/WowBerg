@@ -4,20 +4,11 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: wowberg-api
-    command: uvicorn api:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/src
-    develop:
-      watch:
-        - action: sync
-          path: ./src
-          target: /app/src
-        - action: rebuild
-          path: pyproject.toml
-        - action: rebuild
-          path: Dockerfile
+    command: uvicorn api.run:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/src
     ports:
       - "8000:8000"
     volumes:
-      - ./src:/app/src
+      - ./src/api:/app/src/api
     environment:
       APP_ENV: development
       DB_HOST: db
@@ -28,18 +19,14 @@ services:
     depends_on:
       - db
 
-  main:
+  wowberg:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: wowberg-main
-    command: python -m main
-    develop:
-      watch:
-        - action: restart
-          path: ./src
+    command: python -m wowberg.run
     volumes:
-      - ./src:/app/src
+      - ./src/wowberg:/app/src/wowberg
     environment:
       APP_ENV: development
 

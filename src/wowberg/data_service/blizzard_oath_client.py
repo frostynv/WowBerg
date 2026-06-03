@@ -12,6 +12,11 @@ Usage:
 The client caches access tokens in memory until shortly before expiration.
 """
 from __future__ import annotations
+import sys
+from pathlib import Path
+import xml.etree.ElementTree as ET
+from debug.debug import create_debug
+
 
 import time
 from typing import Optional, Dict, Any
@@ -29,10 +34,24 @@ DEFAULT_CLIENT_ID = "09c055d763e848a4a251dbd61ab0eefd"
 # Default Blizzard application secret used when callers do not supply overrides.
 DEFAULT_CLIENT_SECRET = "Dj9NAoMQaC8xm1yZJaRqiF4RYqUZ2OAT"
 
+# Debug tool
+debug = create_debug([sys.stdout])
 
+    
 class BlizzardAuthError(RuntimeError):
-    pass
+    """Domain error for Blizzard OAuth and API request failures."""
 
+    MESSAGE = "Authentification failed with Blizzard API"
+    def __init__(self, message: Optional[str] = MESSAGE):
+        super().__init__(message)
+
+    
+class BlizzardRegions:
+    """Constants for Blizzard API regions."""
+    US = "us"
+    EU = "eu"
+    KR = "kr"
+    TW = "tw"
 
 class BlizzardOAuthClient:
     """Blizzard API client that encapsulates token and endpoint handling.
@@ -51,7 +70,7 @@ class BlizzardOAuthClient:
         self,
         client_id: str = DEFAULT_CLIENT_ID,
         client_secret: str = DEFAULT_CLIENT_SECRET,
-        region: str = "us",
+        region: BlizzardRegions = BlizzardRegions.US,
         scope: Optional[str] = None,
     ):
         """Initialize the Blizzard API client.
@@ -59,30 +78,17 @@ class BlizzardOAuthClient:
         Args:
             client_id (str): Blizzard application client ID. Defaults to the bundled client ID.
             client_secret (str): Blizzard application client secret. Defaults to the bundled client secret.
-            region (str): Blizzard API region, such as ``us`` or ``eu``.
+            region (BlizzardRegions): Blizzard API region, such as ``us`` or ``eu``.
             scope (Optional[str]): Optional OAuth scope string.
         """
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.region = region
-        self.scope = scope
-
         self._token: Optional[Dict[str, Any]] = None
+        self._client_id = client_id
+        self._client_secret = client_secret
+        self._region = region
         self._expires_at: float = 0.0
 
-    def _token_url(self) -> str:
-        """Build the OAuth token endpoint URL."""
-        return f"https://oauth.battle.net/token"
-
-    def _api_base(self, region: str) -> str:
-        """Build the Blizzard REST API base URL for a region."""
-        return f"https://{region}.api.blizzard.com"
-
-    def fetch_token(self, region: Optional[str] = None) -> Dict[str, Any]:
+    def fetch_token(self) -> Dict[str, Any]:
         """Fetch and cache a client-credentials token.
-
-        Args:
-            region (Optional[str]): Region override for the token request.
 
         Returns:
             Dict[str, Any]: Raw OAuth token response.
@@ -90,62 +96,35 @@ class BlizzardOAuthClient:
         Raises:
             BlizzardAuthError: If the token request fails.
         """
-        region = region or self.region
-        token_url = self._token_url()
+        if not self._region:
+            raise BlizzardAuthError("BLIZZARD_INVALID_REGION")
 
+        url = f"https://{self._region}.oauth.battle.net/token"
         try:
-            oauth = OAuth2Session(client_id=self.client_id, client_secret=self.client_secret)
-            token = oauth.fetch_token(token_url=token_url, grant_type="client_credentials")
-        except Exception as exc:  # keep broad to wrap external library errors
-            raise BlizzardAuthError(f"failed to fetch token: {exc}") from exc
+            oauth = OAuth2Session(client_id=self._client_id, client_secret=self._client_secret)
+            token = oauth.fetch_token(url=url, grant_type="client_credentials")
+            self._token = token
+        except Exception as exception:  # keep broad to wrap external library errors
+            raise BlizzardAuthError(f"BLIZZARD_TOKEN_FETCH_FAILED: {exception}")
 
-        # calc expiry
+        # Calculate expiration time for the token cache.
         expires_in = token.get("expires_in")
         if expires_in:
             self._expires_at = time.time() + int(expires_in) - 10
         else:
-            # fallback: use expires_at if provided or assume 1 hour
+            # Fallback: use expires_at if provided or assume 1 hour.
             self._expires_at = float(token.get("expires_at", time.time() + 3600))
 
-        self._token = token
+        if "access_token" not in token:
+            raise BlizzardAuthError("BLIZZARD_TOKEN_MISSING_ACCESS_TOKEN") # This should never happen if the request succeeded, but we check to be safe.
+        
         return token
 
     def _ensure_token(self) -> str:
         """Return a valid access token, refreshing it when needed."""
         if self._token and time.time() < self._expires_at:
             return self._token["access_token"]
-        token = self.fetch_token()
-        return token["access_token"]
-
-    def api_get(self, path: str, params: Optional[Dict[str, Any]] = None, region: Optional[str] = None) -> Any:
-        """Perform an authenticated GET request against Blizzard API.
-
-        Args:
-            path (str): Blizzard resource path, with or without a leading slash.
-            params (Optional[Dict[str, Any]]): Optional query string parameters.
-            region (Optional[str]): Region override for the API request.
-
-        Returns:
-            Any: Parsed JSON response body.
-
-        Raises:
-            BlizzardAuthError: If the HTTP request fails.
-        """
-        region = region or self.region
-        base = self._api_base(region)
-        url = base.rstrip("/") + "/" + path.lstrip("/")
-
-        access_token = self._ensure_token()
-        headers = {"Authorization": f"Bearer {access_token}"}
-
-        resp = requests.get(url, headers=headers, params=params)
-        try:
-            resp.raise_for_status()
-        except requests.HTTPError as exc:
-            # surface as a domain error for callers to handle
-            raise BlizzardAuthError(f"Blizzard API request failed: {exc} - {resp.text}") from exc
-
-        return resp.json()
-
+        self._token = self.fetch_token()
+        return self._token["access_token"]
 
 __all__ = ["BlizzardOAuthClient", "BlizzardAuthError"]

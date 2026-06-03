@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
+import string
 from typing import Protocol, Union, runtime_checkable
 
 
@@ -49,7 +50,7 @@ class Debug:
         """Remove all sinks."""
         self._streams.clear()
 
-    def log(self, message: object, prefix: str = "[DEBUG]") -> None:
+    def log(self, message: str, prefix: str = "[DEBUG]") -> None:
         """Broadcast a formatted message to every configured sink."""
         formatted_message = f"{prefix} {message}"
 
@@ -63,7 +64,9 @@ class Debug:
             if callable(flush):
                 flush()
 
-
 def create_debug(streams: Iterable[StreamSink] | None = None) -> Debug:
     """Factory for a configurable debug printer."""
     return Debug(streams=streams)
+
+
+__all__ = ["Debug", "create_debug"]
