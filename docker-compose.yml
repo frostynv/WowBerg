@@ -24,7 +24,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: wowberg-main
-    command: python -m wowberg.run
+    command: watchfiles "python -m wowberg.run" /app/src/wowberg
     volumes:
       - ./src/wowberg:/app/src/wowberg
     environment:

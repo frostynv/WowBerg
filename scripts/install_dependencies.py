@@ -32,8 +32,7 @@ def main() -> int:
         help="Path to the local virtual environment to create or update.", # instruction
     )
     arguments = parser.parse_args()
-
-
+    
     try:
         install_dependencies(PROJECT_ROOT, arguments.venv)
     except (FileNotFoundError, subprocess.CalledProcessError) as error:
@@ -53,7 +52,6 @@ def run_command(command: list[str]) -> None:
         None: This function raises on failure.
     """
     subprocess.run(command, check=True)
-
 
 
 ## Virtual environment management
