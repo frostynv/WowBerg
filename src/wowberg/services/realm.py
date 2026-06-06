@@ -50,9 +50,6 @@ class RealmDataService(BlizzardAPIInterface, DebugInterface):
             )
             return None
 
-        """
-        {'_links': {'self': {'href': 'https://us.api.blizzard.com/data/wow/realm/ursin?namespace=dynamic-us'}}, 'id': 156, 'region': {'key': {'href': 'https://us.api.blizzard.com/data/wow/region/1?namespace=dynamic-us'}, 'name': 'North America', 'id': 1}, 'connected_realm': {'href': 'https://us.api.blizzard.com/data/wow/connected-realm/96?namespace=dynamic-us'}, 'name': 'Ursin', 'category': 'United States', 'locale': 'enUS', 'timezone': 'America/New_York', 'type': {'type': 'NORMAL', 'name': 'Normal'}, 'is_tournament': False, 'slug': 'ursin'}"""
-
         try:
             response = requests.get(
                 response.json()["connected_realm"]["href"],
@@ -71,12 +68,12 @@ class RealmDataService(BlizzardAPIInterface, DebugInterface):
     def fetch_data(
         self,
         region: BlizzardRegions = BlizzardRegions.US,
-        realm_id: str = "156",
+        realm_name: str = "ursin",
     ) -> dict[str, object]:
         """Compatibility wrapper for interface contract."""
         return {
             "connected_realm_id": self.fetch_connect_realm_id(
-                region=region, realm_id=realm_id
+                region=region, realm_name=realm_name
             )
         }
 
