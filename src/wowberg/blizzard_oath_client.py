@@ -77,7 +77,7 @@ class BlizzardOAuthClient(DebugInterface):
         self._client_secret = client_secret
         self._region = region
 
-    def fetch_token(self) -> str:
+    def authenticate(self) -> str:
         """Fetch and cache a client-credentials token.
 
         Returns:
@@ -105,7 +105,7 @@ class BlizzardOAuthClient(DebugInterface):
         if self.is_connected():
             return self._token  # valid token, don't fetch new one
 
-        self._token = self.fetch_token()
+        self._token = self.authenticate()
         return self._token
 
     def is_connected(self) -> bool:

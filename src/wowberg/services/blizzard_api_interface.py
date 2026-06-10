@@ -14,7 +14,7 @@ class BlizzardNamepaces:
     STATIC = "static"
     DYNAMIC = "dynamic"
 
-class BlizzardAPIInterface(ABC):
+class BlizzardAPIInterface(ABC, DebugInterface):
     """
     BlizzardAPIInterface defines the interface for a Blizzard API data provider.
     Functionalities:
@@ -25,11 +25,13 @@ class BlizzardAPIInterface(ABC):
 
     def __init__(self, client: BlizzardOAuthClient):
         # Initialize any necessary variables or connections here
-        
+        super().__init__()
         self.config: dict[str, object] = {
             "client": client,
         }
-        
+        self._data: dict[str, object] = {"data": None, "last_modified": None}
+    
+    
     @property
     def client(self) -> BlizzardOAuthClient:
         client: BlizzardOAuthClient | None = self.config["client"]
@@ -53,14 +55,6 @@ class BlizzardAPIInterface(ABC):
             return False
         return client.is_connected()
         
-        
-    @abstractmethod
-    def fetch_data(self) -> bool:
-        """
-        Fetch data by implementing this method in the subclass.
-        """
-        pass
-
     def set_config(self, config: dict[str, object]) -> bool:
         """
         Set the configuration for the data provider.

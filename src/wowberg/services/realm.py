@@ -6,24 +6,22 @@ from wowberg.debug.debug import DebugInterface
 import requests
 
 
-class RealmDataService(BlizzardAPIInterface, DebugInterface):
+class RealmDataService(BlizzardAPIInterface):
 
     config: dict[str, object] = {
         "client": None,
     }
 
-    data: dict[str, object] = {"data": None}
-
     def __init__(self, client: BlizzardOAuthClient):
+        super().__init__(client=client)
         self.config["client"] = client
 
-    def fetch_connect_realm_id(
+    def get_connect_realm_id(
         self,
         region: BlizzardRegions = BlizzardRegions.US,  # default to US region TODO: remove in release
         realm_name: str = "ursin",  # default to Ursin realm TODO: remove in release
     ) -> str:
         """Fetch realm data and return the connected-realm ID."""
-        self.debugger.log(f"{self.client._ensure_token()}")
         request_url = f"{BlizzardAPIInterface.BlizzardUtils.url(region=region)}/realm/{realm_name}"
         request_headers = (
             BlizzardAPIInterface.BlizzardUtils.get_header_signature(
@@ -64,18 +62,6 @@ class RealmDataService(BlizzardAPIInterface, DebugInterface):
             return None
 
         return response.json().get("id")
-
-    def fetch_data(
-        self,
-        region: BlizzardRegions = BlizzardRegions.US,
-        realm_name: str = "ursin",
-    ) -> dict[str, object]:
-        """Compatibility wrapper for interface contract."""
-        return {
-            "connected_realm_id": self.fetch_connect_realm_id(
-                region=region, realm_name=realm_name
-            )
-        }
 
     def set_config(self, config: dict[str, object]) -> bool:
         return False

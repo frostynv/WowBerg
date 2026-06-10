@@ -27,6 +27,7 @@ services:
     command: watchfiles "python -m wowberg.run" /app/src/wowberg
     volumes:
       - ./src/wowberg:/app/src/wowberg
+      - ./export_json:/app/export_json
     environment:
       APP_ENV: development
 

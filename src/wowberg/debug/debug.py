@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from abc import abstractmethod
 from collections.abc import Callable, Iterable
+import datetime
 from typing import ClassVar, Protocol, Union, runtime_checkable
 
 
@@ -19,10 +21,10 @@ class DebugInterface:
     _debugger: ClassVar[Debugger | None] = None
     
     class ErrorLevels:
-        TEST = "[TEST]"
-        INFO = "[INFO]"
-        WARN = "[WARNING]"
-        CRITICAL = "[ERROR]"
+        TEST = "TEST"
+        INFO = "INFO"
+        WARN = "WARNING"
+        CRITICAL = "ERROR"
 
     @property
     def debugger(self) -> Debugger:
@@ -41,18 +43,20 @@ class DebugInterface:
         return cls._debugger
 
 
+
 class Debugger:
     """Debugger utility class for broadcasting messages to multiple sinks."""
 
     def __init__(self, streams: Iterable[StreamSink] | None = None) -> None:
         # Initialize with default to standard print if no streams
         self._streams = list(streams) if streams is not None else [print]
-
-
-    def log(self, message: str, prefix: str = "[DEBUG]") -> None:
-        """Broadcast a formatted medossage to every configured sink."""
+        
+    def log(self, message: str, prefix: str = DebugInterface.ErrorLevels.INFO) -> None:
+        """Broadcast a formatted message to every configured sink."""
         # Format the message with the prefix
-        formatted_message = f"{prefix} {message}"
+        
+        prefix = f"[{prefix}]" if prefix else ""
+        formatted_message = f"[{datetime.datetime.now().strftime('%H:%M:%S')}]{prefix} {message}"
         
         # Write the formatted message to each stream
         for stream in self._streams:
@@ -66,12 +70,16 @@ class Debugger:
 
     ## Stream management methods
 
-    def set_streams(self, streams: Iterable[StreamSink]) -> None:
+    @property
+    def streams(self) -> list[StreamSink]:
+        """Return the current list of output sinks."""
+        return self._streams
+
+    @streams.setter
+    def streams(self, streams: Iterable[StreamSink]) -> None:
         """Replace output sinks for this debug instance."""
         self._streams = list(streams)
 
-    @property
-    def streams(self) -> list[StreamSink]:
         """Return the current list of output sinks."""
         return self._streams
     
