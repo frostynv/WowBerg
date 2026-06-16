@@ -24,12 +24,19 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: wowberg-main
-    command: watchfiles "python -m wowberg.run" /app/src/wowberg
+    command: python -m wowberg.run
     volumes:
       - ./src/wowberg:/app/src/wowberg
       - ./export_json:/app/export_json
     environment:
       APP_ENV: development
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: wowberg
+      DB_USER: wowberg
+      DB_PASSWORD: wowberg
+    depends_on:
+      - db
 
   db:
     image: timescale/timescaledb:latest-pg16

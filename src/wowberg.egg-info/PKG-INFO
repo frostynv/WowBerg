@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: wowberg
+Version: 0.1.0
+Summary: Bloomberg Terminal for World of Warcraft
+Requires-Python: >=3.9
+Requires-Dist: fastapi==0.115.12
+Requires-Dist: uvicorn[standard]==0.34.0
+Requires-Dist: GitPython==3.1.43
+Requires-Dist: Authlib
+Requires-Dist: cryptography
+Requires-Dist: httpx
+Requires-Dist: requests
+Requires-Dist: watchfiles>=0.21.0
+Requires-Dist: SQLAlchemy==2.0.51
+Requires-Dist: psycopg2-binary

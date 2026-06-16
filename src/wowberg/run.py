@@ -5,6 +5,7 @@ import threading
 from wowberg.blizzard_oath_client import BlizzardOAuthClient, BlizzardRegions
 from wowberg.services.auction import AuctionDataService
 from wowberg.debug.debug import DebugInterface
+from wowberg.schema import init_db
 
 LOCALE = "en_US"
 UPDATE_INTERVAL_SECONDS = 3600 # 30 minutes in seconds, the recommended polling interval for Blizzard auction data
@@ -20,7 +21,9 @@ class WowBerg(DebugInterface):
     def run_wowberg(self) -> None:
         """Start the Blizzard update flow in the background and keep process alive."""
         self.debugger.log("===== Welcome to WowBerg =====")
-
+        
+        
+        init_db()
         self._scheduler.start(tasks={"update_auction_data": self.run_update_db})
 
         # Keep main thread alive and handle graceful shutdown
