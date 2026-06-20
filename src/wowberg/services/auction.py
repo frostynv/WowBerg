@@ -3,7 +3,7 @@ from wowberg.services.blizzard_api_interface import (
 )
 from wowberg.services.realm import RealmDataService
 from wowberg.blizzard_oath_client import BlizzardOAuthClient, BlizzardRegions
-from wowberg.logger import Logger
+from wowberg.logger.logservice import LogService
 import requests
 from datetime import datetime, timedelta, timezone
 
@@ -101,9 +101,9 @@ class AuctionDataService(BlizzardAPIInterface):
                 timeout=20,
             )
         except Exception as e:
-            Logger.log(
+            LogService.log(
                 f"Error while fetching auction data: {e}",
-                prefix=Logger.ErrorLevels.CRITICAL,
+                prefix=LogService.ErrorLevels.CRITICAL,
                 handler="blizzard",
             )
             return None
@@ -120,9 +120,9 @@ class AuctionDataService(BlizzardAPIInterface):
             )
 
         elif response.status_code == 304:
-            Logger.log(
+            LogService.log(
                 f"BLIZZARD_AUCTIONS_NOT_MODIFIED {realm_name} ({region}).",
-                prefix=Logger.ErrorLevels.INFO,
+                prefix=LogService.ErrorLevels.INFO,
                 handler="blizzard",
             )
             return None
@@ -135,9 +135,9 @@ class AuctionDataService(BlizzardAPIInterface):
                 "region": region,
             }
         else:
-            Logger.log(
+            LogService.log(
                 f"BLIZZARD_UNKNOWN_RESPONSE: {response}",
-                prefix=Logger.ErrorLevels.WARN,
+                prefix=LogService.ErrorLevels.WARN,
                 handler="blizzard",
             )
             raise BlizzardAPIInterface.BlizzardAPIError(

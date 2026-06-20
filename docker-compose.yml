@@ -9,6 +9,7 @@ services:
       - "8000:8000"
     volumes:
       - ./src/api:/app/src/api
+      - ./logging_config.yaml:/app/logging_config.yaml
     environment:
       APP_ENV: development
       DB_HOST: db
@@ -18,7 +19,7 @@ services:
       DB_PASSWORD: wowberg
     depends_on:
       - db
-
+      - wowberg
   wowberg:
     build:
       context: .
@@ -29,13 +30,22 @@ services:
       - ./src/wowberg:/app/src/wowberg
       - ./export_json:/app/export_json
       - ./logs:/app/logs
+      - ./logging_config.yaml:/app/logging_config.yaml
+    develop:
+      watch:
+        - action: restart
+          path: "./src/wowberg"
+        - action: restart
+          path: "./logging_config.yaml"
     environment:
       APP_ENV: development
+      APP_CODE: wowberg
       DB_HOST: db
       DB_PORT: "5432"
       DB_NAME: wowberg
       DB_USER: wowberg
       DB_PASSWORD: wowberg
+      LOG_CONFIG_PATH: "/app/logging_config.yaml"
     depends_on:
       - db
 

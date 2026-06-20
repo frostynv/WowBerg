@@ -2,7 +2,7 @@ from wowberg.services.blizzard_api_interface import (
     BlizzardAPIInterface,
 )
 from wowberg.blizzard_oath_client import BlizzardOAuthClient, BlizzardRegions
-from wowberg.logger import Logger
+from wowberg.logger.logservice import LogService
 import requests
 
 
@@ -42,7 +42,7 @@ class RealmDataService(BlizzardAPIInterface):
                 timeout=20,
             )
         except Exception as e:
-            Logger.log(
+            LogService.log(
                 f"Error occurred while making realm API request: {e}",
                 prefix="[ERR]",
             )
@@ -55,7 +55,7 @@ class RealmDataService(BlizzardAPIInterface):
                 timeout=20,
             )
         except Exception as e:
-            Logger.log(
+            LogService.log(
                 f"Error occurred while making connected realm API request: {e}",
                 prefix="[ERR]",
             )

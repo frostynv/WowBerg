@@ -6,7 +6,7 @@ from typing import Optional
 import requests
 
 from wowberg.blizzard_oath_client import BlizzardRegions, BlizzardOAuthClient
-from wowberg.logger import Logger
+from wowberg.logger import LogService
 
 class BlizzardNamepaces:
     """Constants for Blizzard API namespaces."""
@@ -74,7 +74,7 @@ class BlizzardAPIInterface(ABC):
             self,
             message: Optional[str] = MESSAGE,
             description: Optional[str] = None,
-            error_level: Logger.ErrorLevels = Logger.ErrorLevels.CRITICAL,
+            error_level: LogService.ErrorLevels = LogService.ErrorLevels.CRITICAL,
         ):
             super().__init__(message)
             self.error_level = error_level
@@ -90,7 +90,7 @@ class BlizzardAPIInterface(ABC):
             self,
             message: Optional[str] = MESSAGE,
             description: Optional[str] = None,
-            error_level: Logger.ErrorLevels = Logger.ErrorLevels.CRITICAL,
+            error_level: LogService.ErrorLevels = LogService.ErrorLevels.CRITICAL,
         ):
             super().__init__(message, description, error_level)
 
@@ -103,7 +103,7 @@ class BlizzardAPIInterface(ABC):
             self,
             message: Optional[str] = MESSAGE,
             description: Optional[str] = None,
-            error_level: Logger.ErrorLevels = Logger.ErrorLevels.CRITICAL,
+            error_level: LogService.ErrorLevels = LogService.ErrorLevels.CRITICAL,
         ):
             super().__init__(message, description, error_level)
     

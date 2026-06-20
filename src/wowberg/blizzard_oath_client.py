@@ -16,7 +16,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 import xml.etree.ElementTree as ET
-from wowberg.logger import Logger
+from wowberg.logger import LogService
 
 
 import time
@@ -151,7 +151,7 @@ class BlizzardOAuthClient:
             self,
             message: Optional[str] = MESSAGE,
             description: Optional[str] = None,
-            error_level: Logger.ErrorLevels = Logger.ErrorLevels.CRITICAL,
+            error_level: LogService.ErrorLevels = LogService.ErrorLevels.CRITICAL,
         ):
             super().__init__(message)
             self.error_level = error_level
@@ -169,7 +169,7 @@ class BlizzardOAuthClient:
             self,
             message: Optional[str] = MESSAGE,
             description: Optional[str] = None,
-            error_level: Logger.ErrorLevels = Logger.ErrorLevels.WARN,
+            error_level: LogService.ErrorLevels = LogService.ErrorLevels.WARN,
         ):
             self.error_level = error_level
             super().__init__(message, description, error_level)

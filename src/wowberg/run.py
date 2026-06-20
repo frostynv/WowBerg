@@ -4,45 +4,43 @@ import threading
 
 from wowberg.blizzard_oath_client import BlizzardOAuthClient, BlizzardRegions
 from wowberg.services.auction import AuctionDataService
-from wowberg.logger import Logger
+from wowberg.logger import LogService
 from wowberg.schema import init_db
+from wowberg.dockerizable import Dockerizable
 
 LOCALE = "en_US"
 UPDATE_INTERVAL_SECONDS = 600  # 30 minutes in seconds, the recommended polling interval for Blizzard auction data
 
-class WowBerg:
+class WowBerg(Dockerizable):
     def __init__(self) -> None:
+        super().__init__()  # ← Register signal handlers
         # Persistent data storage for WowBerg, such as cached auction data and metadata.
         self._persistance_data = {"services": {}}
         self._scheduler = self.WowBergScheduler()
         self._module_data = self.WowBergData()
 
+    def _shutdown(self, signum, frame):
+        """Handle graceful shutdown on termination signals."""
+        self.shutdown_wowberg()
+
     def run_wowberg(self) -> None:
         """Start the Blizzard update flow in the background and keep process alive."""
-        Logger.log("===== Welcome to WowBerg =====")
-
+        LogService.log("===== Welcome to WowBerg =====")
         init_db()
         self._scheduler.start(
             tasks={"update_auction_data": self._module_data.run_update_auctions}
         )
-
-        # Keep main thread alive and handle graceful shutdown
-        try:
-            while not self._scheduler._stop_event.is_set():
-                self._scheduler._stop_event.wait(1)
-        except KeyboardInterrupt:
-            self._scheduler.stop()
-            Logger.log(
-                "Scheduler shutting down",
-                prefix=Logger.ErrorLevels.INFO,
-            )
-
-        Logger.log("===== Bye WowBerg =====")
-        self.shutdown_wowberg()
+        
+        # keep main thread alive to allow background scheduler to run, and listen for shutdown signals
+        while not self._scheduler._stop_event.is_set():
+            self._scheduler._stop_event.wait(1)
+        
+        LogService.log("===== Bye WowBerg =====")
 
     def shutdown_wowberg(self) -> None:
         """Stop the scheduler and perform any necessary cleanup."""
-        self._scheduler.wait_for_shutdown()
+        self._scheduler.stop()
+        LogService.log("WowBerg has been shut down gracefully.", prefix=LogService.ErrorLevels.INFO)
 
     class WowBergScheduler:
         def __init__(self, name: str = "WowBergScheduler"):
@@ -62,9 +60,9 @@ class WowBerg:
 
             # Guard: Singleton thread for scheduler
             if self._scheduler_thread and self._scheduler_thread.is_alive():
-                Logger.log(
+                LogService.log(
                     "Scheduler is already running. No action taken.",
-                    prefix=Logger.ErrorLevels.WARN,
+                    prefix=LogService.ErrorLevels.WARN,
                 )
                 return
             # Reset the stop event
@@ -76,9 +74,10 @@ class WowBerg:
                 name="wowberg-auction-updater",
                 daemon=True,
             )
-            Logger.log(
+            LogService.log(
                 f"Running {self._name} \n | Interval: {interval_seconds} seconds \n | Tasks: {list(tasks.keys()) if tasks else 'EMPTY'} ",
-                prefix=Logger.ErrorLevels.INFO,
+                prefix=LogService.ErrorLevels.INFO,
+                args={"Interval": interval_seconds, "Tasks": list(tasks.keys()) if tasks else "EMPTY"},
             )
             self._scheduler_thread.start()
             
@@ -88,18 +87,6 @@ class WowBerg:
             # Flag: wakes scheduler thread
             self._stop_event.set()
 
-        def wait_for_shutdown(self) -> None:
-            """Keep process alive until interrupted, then stop scheduler cleanly."""
-            try:
-                while not self._stop_event.is_set():
-                    self._stop_event.wait(1)
-            except KeyboardInterrupt:
-                self.stop()
-                Logger.log(
-                    "Scheduler shutting down",
-                    prefix=Logger.ErrorLevels.INFO,
-                )
-
         def _run(
             self, interval_seconds: int, tasks: dict[str, callable] = None
         ) -> None:
@@ -108,9 +95,9 @@ class WowBerg:
                 try:
                     self._run_tasks(tasks)
                 except Exception as e:
-                    Logger.log(
+                    LogService.log(
                         f"Error occurred: {e}",
-                        prefix=Logger.ErrorLevels.CRITICAL,
+                        prefix=LogService.ErrorLevels.CRITICAL,
                     )
 
                 # case: wait for configured interval
@@ -125,28 +112,28 @@ class WowBerg:
 
             # guard: no tasks provided
             if not tasks:
-                Logger.log(
+                LogService.log(
                     "No tasks provided to scheduler.",
-                    prefix=Logger.ErrorLevels.WARN,
+                    prefix=LogService.ErrorLevels.WARN,
                 )
                 return
 
             for task_name, task_func in tasks.items():
                 with self._task_lock:
-                    Logger.log(
+                    LogService.log(
                         f"Task started: {task_name}",
-                        prefix=Logger.ErrorLevels.INFO,
+                        prefix=LogService.ErrorLevels.INFO,
                     )
                     try:
                         task_func()
-                        Logger.log(
+                        LogService.log(
                             f"Task completed: {task_name}",
-                            prefix=Logger.ErrorLevels.INFO,
+                            prefix=LogService.ErrorLevels.INFO,
                         )
                     except Exception as e:
-                        Logger.log(
+                        LogService.log(
                             f"Error in task '{task_name}': {e}",
-                            prefix=Logger.ErrorLevels.CRITICAL,
+                            prefix=LogService.ErrorLevels.CRITICAL,
                         )
 
 
@@ -158,9 +145,9 @@ class WowBerg:
             try:
                 blizzard_client.authenticate()
             except Exception as e:
-                Logger.log(
+                LogService.log(
                     f"Token Service: {e}",
-                    prefix=Logger.ErrorLevels.CRITICAL,
+                    prefix=LogService.ErrorLevels.CRITICAL,
                     handler="blizzard",
                 )
                 return
@@ -188,9 +175,9 @@ class WowBerg:
                     region=region, realm_name=realm_name, cached=True
                 )
             except Exception as e:
-                Logger.log(
+                LogService.log(
                     f"Auction Service: {e}",
-                    prefix=Logger.ErrorLevels.CRITICAL,
+                    prefix=LogService.ErrorLevels.CRITICAL,
                     handler="blizzard",
                 )
                 return
@@ -203,17 +190,19 @@ class WowBerg:
             try:
                 with open(filename, "w", encoding="utf-8") as file:
                     file.write(auction_data)
-                Logger.log(
+                LogService.log(
                     f"File created: {filename}",
-                    prefix=Logger.ErrorLevels.INFO,
+                    prefix=LogService.ErrorLevels.INFO,
                     handler="blizzard",
                 )
             except Exception as e:
-                Logger.log(
+                LogService.log(
                     f"Error exporting auction data: {e}",
-                    prefix=Logger.ErrorLevels.CRITICAL,
+                    prefix=LogService.ErrorLevels.CRITICAL,
                     handler="blizzard",
                 )
+
+
 
 
 if __name__ == "__main__":
