@@ -13,3 +13,4 @@ Requires-Dist: requests
 Requires-Dist: watchfiles>=0.21.0
 Requires-Dist: SQLAlchemy==2.0.51
 Requires-Dist: psycopg2-binary
+Requires-Dist: PyYAML

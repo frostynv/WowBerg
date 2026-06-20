@@ -16,7 +16,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 import xml.etree.ElementTree as ET
-from wowberg.debug.debug import DebugInterface
+from wowberg.logger import Logger
 
 
 import time
@@ -45,7 +45,7 @@ class BlizzardRegions:
     TW = "tw"
 
 
-class BlizzardOAuthClient(DebugInterface):
+class BlizzardOAuthClient:
     """Blizzard API client that encapsulates token and endpoint handling.
 
     Contract:
@@ -120,12 +120,12 @@ class BlizzardOAuthClient(DebugInterface):
             # raise all exceptions as BlizzardAPIError to unify error handling for callers
             raise self.BlizzardAPIError(description=f"HTTP request failed: {e}")
 
-        # 405: Method Not Allowed (bad api usage)
+        # case: 405: Method Not Allowed (bad api usage)
         if response.status_code == 405:
             raise self.BlizzardMethodNotAllowedError(
                 description=f"Invalid HTTP method used for Blizzard API endpoint: {response}"
             )
-        # 400: Bad Request (invalid token, could be expired or malformed)
+        # case: 400: Bad Request (invalid token, could be expired or malformed)
         elif response.status_code == 400:
             if response.json().get("error") == "invalid_token":
                 return False
@@ -133,7 +133,7 @@ class BlizzardOAuthClient(DebugInterface):
                 raise self.BlizzardAPIError(
                     description=f"Unexpected error response returning same status code as invalid token: {response}"
                 )
-        # 200: OK (valid token)
+        # case: 200 OK (valid token)
         elif response.status_code == 200:
             return True
         else:
@@ -151,7 +151,7 @@ class BlizzardOAuthClient(DebugInterface):
             self,
             message: Optional[str] = MESSAGE,
             description: Optional[str] = None,
-            error_level: DebugInterface.ErrorLevels = DebugInterface.ErrorLevels.CRITICAL,
+            error_level: Logger.ErrorLevels = Logger.ErrorLevels.CRITICAL,
         ):
             super().__init__(message)
             self.error_level = error_level
@@ -169,7 +169,7 @@ class BlizzardOAuthClient(DebugInterface):
             self,
             message: Optional[str] = MESSAGE,
             description: Optional[str] = None,
-            error_level: DebugInterface.ErrorLevels = DebugInterface.ErrorLevels.WARN,
+            error_level: Logger.ErrorLevels = Logger.ErrorLevels.WARN,
         ):
             self.error_level = error_level
             super().__init__(message, description, error_level)

@@ -28,6 +28,7 @@ services:
     volumes:
       - ./src/wowberg:/app/src/wowberg
       - ./export_json:/app/export_json
+      - ./logs:/app/logs
     environment:
       APP_ENV: development
       DB_HOST: db

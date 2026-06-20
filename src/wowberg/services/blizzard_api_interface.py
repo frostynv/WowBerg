@@ -6,7 +6,7 @@ from typing import Optional
 import requests
 
 from wowberg.blizzard_oath_client import BlizzardRegions, BlizzardOAuthClient
-from wowberg.debug.debug import DebugInterface
+from wowberg.logger import Logger
 
 class BlizzardNamepaces:
     """Constants for Blizzard API namespaces."""
@@ -14,7 +14,7 @@ class BlizzardNamepaces:
     STATIC = "static"
     DYNAMIC = "dynamic"
 
-class BlizzardAPIInterface(ABC, DebugInterface):
+class BlizzardAPIInterface(ABC):
     """
     BlizzardAPIInterface defines the interface for a Blizzard API data provider.
     Functionalities:
@@ -74,7 +74,7 @@ class BlizzardAPIInterface(ABC, DebugInterface):
             self,
             message: Optional[str] = MESSAGE,
             description: Optional[str] = None,
-            error_level: DebugInterface.ErrorLevels = DebugInterface.ErrorLevels.CRITICAL,
+            error_level: Logger.ErrorLevels = Logger.ErrorLevels.CRITICAL,
         ):
             super().__init__(message)
             self.error_level = error_level
@@ -90,7 +90,7 @@ class BlizzardAPIInterface(ABC, DebugInterface):
             self,
             message: Optional[str] = MESSAGE,
             description: Optional[str] = None,
-            error_level: DebugInterface.ErrorLevels = DebugInterface.ErrorLevels.CRITICAL,
+            error_level: Logger.ErrorLevels = Logger.ErrorLevels.CRITICAL,
         ):
             super().__init__(message, description, error_level)
 
@@ -103,7 +103,7 @@ class BlizzardAPIInterface(ABC, DebugInterface):
             self,
             message: Optional[str] = MESSAGE,
             description: Optional[str] = None,
-            error_level: DebugInterface.ErrorLevels = DebugInterface.ErrorLevels.CRITICAL,
+            error_level: Logger.ErrorLevels = Logger.ErrorLevels.CRITICAL,
         ):
             super().__init__(message, description, error_level)
     

@@ -1,4 +1,4 @@
-"""Debug logger encapsulation using Python's logging module.
+"""Logger encapsulation using Python's logging module.
 
 Supports external configuration for stream handling and multi-purpose logging.
 Configuration is loaded from logging_config.yaml in the project root.
@@ -55,7 +55,7 @@ class Logger:
                         defaults to 'logging_config.yaml' in project root.
         """
         if config_path is None:
-            config_path = str(Path(__file__).parent.parent.parent / "logging_config.yaml")
+            config_path = str(Path(__file__).parent.parent / "logging_config.yaml")
         
         config_file = Path(config_path)
         

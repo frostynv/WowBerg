@@ -8,3 +8,4 @@ requests
 watchfiles>=0.21.0
 SQLAlchemy==2.0.51
 psycopg2-binary
+PyYAML
