@@ -5,7 +5,7 @@ import threading
 from wowberg.blizzard_oath_client import BlizzardOAuthClient, BlizzardRegions
 from wowberg.services.auction import AuctionDataService
 from wowberg.logger import LogService
-from wowberg.schema import init_db
+from wowberg.schema import start_db
 from wowberg.dockerizable import Dockerizable
 
 LOCALE = "en_US"
@@ -25,8 +25,9 @@ class WowBerg(Dockerizable):
 
     def run_wowberg(self) -> None:
         """Start the Blizzard update flow in the background and keep process alive."""
-        LogService.log("===== Welcome to WowBerg =====")
-        init_db()
+        LogService.log("Starting WowBerg ...", prefix=LogService.LoggingLevels.INFO)
+        
+        start_db()
         self._scheduler.start(
             tasks={"update_auction_data": self._module_data.run_update_auctions}
         )
@@ -34,16 +35,16 @@ class WowBerg(Dockerizable):
         # keep main thread alive to allow background scheduler to run, and listen for shutdown signals
         while not self._scheduler._stop_event.is_set():
             self._scheduler._stop_event.wait(1)
-        
-        LogService.log("===== Bye WowBerg =====")
+            
+        LogService.log("Goodbye WowBerg", prefix=LogService.LoggingLevels.INFO)
 
     def shutdown_wowberg(self) -> None:
         """Stop the scheduler and perform any necessary cleanup."""
         self._scheduler.stop()
-        LogService.log("WowBerg has been shut down gracefully.", prefix=LogService.ErrorLevels.INFO)
+        LogService.log("Shutdown sequence initiated...saving data...", prefix=LogService.LoggingLevels.INFO)
 
     class WowBergScheduler:
-        def __init__(self, name: str = "WowBergScheduler"):
+        def __init__(self, name: str = "task-scheduler"):
             self._name = name
             self._stop_event = threading.Event()
             self._scheduler_thread: threading.Thread | None = None
@@ -62,7 +63,7 @@ class WowBerg(Dockerizable):
             if self._scheduler_thread and self._scheduler_thread.is_alive():
                 LogService.log(
                     "Scheduler is already running. No action taken.",
-                    prefix=LogService.ErrorLevels.WARN,
+                    prefix=LogService.LoggingLevels.WARN,
                 )
                 return
             # Reset the stop event
@@ -75,8 +76,8 @@ class WowBerg(Dockerizable):
                 daemon=True,
             )
             LogService.log(
-                f"Running {self._name} \n | Interval: {interval_seconds} seconds \n | Tasks: {list(tasks.keys()) if tasks else 'EMPTY'} ",
-                prefix=LogService.ErrorLevels.INFO,
+                f"Starting \"{self._name}\"",
+                prefix=LogService.LoggingLevels.INFO,
                 args={"Interval": interval_seconds, "Tasks": list(tasks.keys()) if tasks else "EMPTY"},
             )
             self._scheduler_thread.start()
@@ -97,7 +98,7 @@ class WowBerg(Dockerizable):
                 except Exception as e:
                     LogService.log(
                         f"Error occurred: {e}",
-                        prefix=LogService.ErrorLevels.CRITICAL,
+                        prefix=LogService.LoggingLevels.CRITICAL,
                     )
 
                 # case: wait for configured interval
@@ -114,26 +115,26 @@ class WowBerg(Dockerizable):
             if not tasks:
                 LogService.log(
                     "No tasks provided to scheduler.",
-                    prefix=LogService.ErrorLevels.WARN,
+                    prefix=LogService.LoggingLevels.WARN,
                 )
                 return
 
             for task_name, task_func in tasks.items():
                 with self._task_lock:
                     LogService.log(
-                        f"Task started: {task_name}",
-                        prefix=LogService.ErrorLevels.INFO,
+                        f"Started task: \"{task_name}\"",
+                        prefix=LogService.LoggingLevels.INFO,
                     )
                     try:
                         task_func()
                         LogService.log(
-                            f"Task completed: {task_name}",
-                            prefix=LogService.ErrorLevels.INFO,
+                            f"Completed task: \"{task_name}\"",
+                            prefix=LogService.LoggingLevels.INFO,
                         )
                     except Exception as e:
                         LogService.log(
-                            f"Error in task '{task_name}': {e}",
-                            prefix=LogService.ErrorLevels.CRITICAL,
+                            f"Error in task \"{task_name}\": {e}",
+                            prefix=LogService.LoggingLevels.CRITICAL,
                         )
 
 
@@ -147,7 +148,7 @@ class WowBerg(Dockerizable):
             except Exception as e:
                 LogService.log(
                     f"Token Service: {e}",
-                    prefix=LogService.ErrorLevels.CRITICAL,
+                    prefix=LogService.LoggingLevels.CRITICAL,
                     handler="blizzard",
                 )
                 return
@@ -177,7 +178,7 @@ class WowBerg(Dockerizable):
             except Exception as e:
                 LogService.log(
                     f"Auction Service: {e}",
-                    prefix=LogService.ErrorLevels.CRITICAL,
+                    prefix=LogService.LoggingLevels.CRITICAL,
                     handler="blizzard",
                 )
                 return
@@ -191,14 +192,14 @@ class WowBerg(Dockerizable):
                 with open(filename, "w", encoding="utf-8") as file:
                     file.write(auction_data)
                 LogService.log(
-                    f"File created: {filename}",
-                    prefix=LogService.ErrorLevels.INFO,
+                    f"Exported auction data to JSON file: \"{filename}\"",
+                    prefix=LogService.LoggingLevels.INFO,
                     handler="blizzard",
                 )
             except Exception as e:
                 LogService.log(
                     f"Error exporting auction data: {e}",
-                    prefix=LogService.ErrorLevels.CRITICAL,
+                    prefix=LogService.LoggingLevels.CRITICAL,
                     handler="blizzard",
                 )
 

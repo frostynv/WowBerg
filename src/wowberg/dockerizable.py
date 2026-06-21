@@ -27,13 +27,13 @@ class Dockerizable(ABC):
             except Exception as e:
                 LogService.log(
                     f"Failed to register signal handlers: {e}",
-                    prefix=LogService.ErrorLevels.WARN
+                    prefix=LogService.LoggingLevels.WARN
                 )
         else:
 
             LogService.log(
                 "Not registering signal handlers: not running in main thread",
-                prefix=LogService.ErrorLevels.WARN
+                prefix=LogService.LoggingLevels.WARN
             )
     
     def _handle_signal(self, signum, frame):
@@ -44,7 +44,7 @@ class Dockerizable(ABC):
             from wowberg.logger.logservice import LogService
             LogService.log(
                 f"Error during shutdown: {e}",
-                prefix=LogService.ErrorLevels.ERROR
+                prefix=LogService.LoggingLevels.ERROR
             )
             sys.exit(1)
     

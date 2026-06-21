@@ -74,7 +74,7 @@ class BlizzardAPIInterface(ABC):
             self,
             message: Optional[str] = MESSAGE,
             description: Optional[str] = None,
-            error_level: LogService.ErrorLevels = LogService.ErrorLevels.CRITICAL,
+            error_level: LogService.LoggingLevels = LogService.LoggingLevels.CRITICAL,
         ):
             super().__init__(message)
             self.error_level = error_level
@@ -90,7 +90,7 @@ class BlizzardAPIInterface(ABC):
             self,
             message: Optional[str] = MESSAGE,
             description: Optional[str] = None,
-            error_level: LogService.ErrorLevels = LogService.ErrorLevels.CRITICAL,
+            error_level: LogService.LoggingLevels = LogService.LoggingLevels.CRITICAL,
         ):
             super().__init__(message, description, error_level)
 
@@ -103,7 +103,7 @@ class BlizzardAPIInterface(ABC):
             self,
             message: Optional[str] = MESSAGE,
             description: Optional[str] = None,
-            error_level: LogService.ErrorLevels = LogService.ErrorLevels.CRITICAL,
+            error_level: LogService.LoggingLevels = LogService.LoggingLevels.CRITICAL,
         ):
             super().__init__(message, description, error_level)
     

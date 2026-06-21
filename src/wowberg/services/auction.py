@@ -103,7 +103,7 @@ class AuctionDataService(BlizzardAPIInterface):
         except Exception as e:
             LogService.log(
                 f"Error while fetching auction data: {e}",
-                prefix=LogService.ErrorLevels.CRITICAL,
+                prefix=LogService.LoggingLevels.CRITICAL,
                 handler="blizzard",
             )
             return None
@@ -122,7 +122,7 @@ class AuctionDataService(BlizzardAPIInterface):
         elif response.status_code == 304:
             LogService.log(
                 f"BLIZZARD_AUCTIONS_NOT_MODIFIED {realm_name} ({region}).",
-                prefix=LogService.ErrorLevels.INFO,
+                prefix=LogService.LoggingLevels.INFO,
                 handler="blizzard",
             )
             return None
@@ -137,7 +137,7 @@ class AuctionDataService(BlizzardAPIInterface):
         else:
             LogService.log(
                 f"BLIZZARD_UNKNOWN_RESPONSE: {response}",
-                prefix=LogService.ErrorLevels.WARN,
+                prefix=LogService.LoggingLevels.WARN,
                 handler="blizzard",
             )
             raise BlizzardAPIInterface.BlizzardAPIError(

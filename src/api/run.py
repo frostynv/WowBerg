@@ -1,10 +1,12 @@
 """FastAPI application entrypoint for WowBerg."""
 
 from fastapi import FastAPI
+from wowberg.logger import LogService
 
 
 def run_api() -> FastAPI:
     """Create the WowBerg HTTP application."""
+    
 
     app = FastAPI(title="WowBerg API", version="0.1.0")
 

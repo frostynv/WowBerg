@@ -1,8 +1,11 @@
 
+import logging
 import os
 from typing import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, Session
+
+from wowberg.logger import LogService
 
 # Read database configuration from environment variables
 db_host = os.getenv("DB_HOST", "localhost")
@@ -40,6 +43,7 @@ def get_db() -> Generator[Session, None, None]:
     finally:
         db.close()
 
-def init_db() -> None:
+def start_db() -> None:
     """Create all tables defined in the models."""
+    LogService.log("Initializing schema tables based on models...")
     Base.metadata.create_all(bind=engine)
