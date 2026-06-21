@@ -2,7 +2,7 @@ from wowberg.services.blizzard_api_interface import (
     BlizzardAPIInterface,
 )
 from wowberg.blizzard_oath_client import BlizzardOAuthClient, BlizzardRegions
-from wowberg.logger.logservice import LogService
+from wowberg.logger.service import LogService
 import requests
 
 

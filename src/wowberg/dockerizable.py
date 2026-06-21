@@ -2,7 +2,7 @@ import signal
 import sys
 import threading
 from abc import ABC, abstractmethod
-from wowberg.logger.logservice import LogService
+from wowberg.logger.service import LogService
 
 class Dockerizable(ABC):
     """Marker class to indicate that a class can be used in a Docker container environment. This is used for type checking and to enforce that certain classes are designed with Docker compatibility in mind."""
@@ -41,7 +41,7 @@ class Dockerizable(ABC):
         try:
             self._shutdown(signum, frame)
         except Exception as e:
-            from wowberg.logger.logservice import LogService
+            from wowberg.logger.service import LogService
             LogService.log(
                 f"Error during shutdown: {e}",
                 prefix=LogService.LoggingLevels.ERROR

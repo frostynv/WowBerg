@@ -1,4 +1,4 @@
-from .logservice import LogService
-from .logformatters import ConsoleFormatter
+from .service import LogService
+from .formatters import ConsoleFormatter
 
 __all__ = ["LogService", "ConsoleFormatter"] 

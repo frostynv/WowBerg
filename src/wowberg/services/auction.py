@@ -3,7 +3,7 @@ from wowberg.services.blizzard_api_interface import (
 )
 from wowberg.services.realm import RealmDataService
 from wowberg.blizzard_oath_client import BlizzardOAuthClient, BlizzardRegions
-from wowberg.logger.logservice import LogService
+from wowberg.logger.service import LogService
 import requests
 from datetime import datetime, timedelta, timezone
 

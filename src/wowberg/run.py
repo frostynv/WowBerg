@@ -3,7 +3,7 @@
 import threading
 
 from wowberg.blizzard_oath_client import BlizzardOAuthClient, BlizzardRegions
-from wowberg.services.auction import AuctionDataService
+from wowberg.services import AuctionDataService
 from wowberg.logger import LogService
 from wowberg.schema import start_db
 from wowberg.dockerizable import Dockerizable
